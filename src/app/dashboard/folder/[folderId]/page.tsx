@@ -1,13 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import useSWR from 'swr';
 import api from '@/lib/axios';
+import { useRouter } from 'next/navigation'; // <-- import router
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
+import UploadWidget from '@/components/shared/UploadWidget';
+import PrivateRoute from '@/components/shared/PrivateRoute';
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
@@ -15,57 +23,89 @@ export default function FolderDetailPage({ params }: { params: { folderId: strin
   const folderId = params.folderId;
   const { data, error, mutate } = useSWR(`/media/folder/${folderId}`, fetcher);
 
-  const [open, setOpen] = useState(false);
-  const [files, setFiles] = useState<FileList | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const router = useRouter(); // initialize router
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFiles(e.target.files);
+  const [openUpload, setOpenUpload] = useState(false);
+  const [openView, setOpenView] = useState(false);
+  const [viewMedia, setViewMedia] = useState<any>(null);
+  const [selectedMedia, setSelectedMedia] = useState<string[]>([]);
+
+  const toggleSelection = (mediaId: string) => {
+    setSelectedMedia(prev =>
+      prev.includes(mediaId) ? prev.filter(id => id !== mediaId) : [...prev, mediaId]
+    );
   };
 
-  const uploadFiles = async () => {
-    if (!files) return;
+  const handleDelete = async (mediaId: string) => {
+    if (!confirm('Are you sure you want to delete this media?')) return;
 
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append('files', files[i]);
-    }
-    formData.append('folderId', folderId);
-
-    setUploading(true);
     try {
-      await api.post('/media/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
-          );
-          setUploadProgress(percent);
-        },
-      });
-      mutate(); // refresh media list
-      setFiles(null);
-      setOpen(false);
+      await api.delete(`/media/${mediaId}`);
+      mutate();
     } catch (error) {
-      console.error(error);
+      console.error('Delete failed:', error);
+      alert('Failed to delete. Try again.');
     }
-    setUploading(false);
-    setUploadProgress(0);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm('Are you sure you want to delete selected media?')) return;
+
+    try {
+      await api.delete('/media/bulk-delete', { data: { mediaIds: selectedMedia } });
+      setSelectedMedia([]);
+      mutate();
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      alert('Failed to bulk delete. Try again.');
+    }
+  };
+
+  const handleDownload = (url: string, name: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (error) return <p>Error loading media.</p>;
   if (!data) return <p>Loading media...</p>;
 
   return (
-    <main className="max-w-5xl mx-auto p-6 relative">
+  <PrivateRoute>
+      <main className="max-w-5xl mx-auto p-6 relative">
+      {/* Back to folders button */}
+      <Button variant="outline" className="mb-6" onClick={() => router.push('/dashboard')}>
+        ← Back to Folders
+      </Button>
+
       <h1 className="text-2xl font-bold mb-6">Folder Media</h1>
+
+      {selectedMedia.length > 0 && (
+        <div className="mb-4 flex items-center gap-4">
+          <p>{selectedMedia.length} selected</p>
+          <Button variant="destructive" onClick={handleBulkDelete}>
+            Delete Selected
+          </Button>
+          <Button variant="outline" onClick={() => setSelectedMedia([])}>
+            Clear Selection
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {data.media.length === 0 && <p>No media in this folder yet.</p>}
         {data.media.map((item: any) => (
-          <Card key={item._id} className="p-2">
+          <Card key={item._id} className="p-2 flex flex-col relative">
+            <input
+              type="checkbox"
+              className="absolute top-2 left-2 w-4 h-4 z-10"
+              checked={selectedMedia.includes(item._id)}
+              onChange={() => toggleSelection(item._id)}
+            />
+
             {item.fileType === 'image' ? (
               <img
                 src={item.url}
@@ -77,19 +117,72 @@ export default function FolderDetailPage({ params }: { params: { folderId: strin
                 <p className="text-gray-500">PDF</p>
               </div>
             )}
-            <p className="mt-2 truncate">{item.originalName}</p>
+
+            <p className="mt-2 truncate text-sm">{item.originalName}</p>
+
+            <div className="mt-auto flex flex-wrap justify-between gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setViewMedia(item);
+                  setOpenView(true);
+                }}
+              >
+                View
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleDownload(item.url, item.originalName)}
+              >
+                Download
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDelete(item._id)}
+              >
+                Delete
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
 
-      {/* Floating Upload Button */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* View Media Dialog */}
+      <Dialog open={openView} onOpenChange={setOpenView}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>{viewMedia?.originalName}</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
+
+          <div className="mt-4 flex justify-center">
+            {viewMedia?.fileType === 'image' ? (
+              <img
+                src={viewMedia.url}
+                alt={viewMedia.originalName}
+                className="max-w-full max-h-[70vh] rounded"
+              />
+            ) : (
+              <iframe
+                src={viewMedia?.url}
+                className="w-full h-[70vh] rounded"
+                title={viewMedia?.originalName}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Button Dialog */}
+      <Dialog open={openUpload} onOpenChange={setOpenUpload}>
         <DialogTrigger asChild>
           <Button
             className="fixed bottom-8 right-8 rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
             aria-label="Upload media"
           >
-            {/* You can use an upload icon from lucide-react or SVG */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -112,34 +205,14 @@ export default function FolderDetailPage({ params }: { params: { folderId: strin
             <DialogTitle>Upload Media</DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 mt-4">
-            <input
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              disabled={uploading}
-              accept="image/*,.pdf"
-            />
-
-            {uploading && (
-              <progress value={uploadProgress} max={100} className="w-full" />
-            )}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-                disabled={uploading}
-              >
-                Cancel
-              </Button>
-              <Button onClick={uploadFiles} disabled={uploading || !files}>
-                {uploading ? 'Uploading...' : 'Upload'}
-              </Button>
-            </div>
-          </div>
+          <UploadWidget
+            folderId={folderId}
+            onUploadComplete={() => mutate()}
+            onClose={() => setOpenUpload(false)}
+          />
         </DialogContent>
       </Dialog>
     </main>
+  </PrivateRoute>
   );
 }

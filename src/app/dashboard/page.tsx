@@ -16,6 +16,7 @@ import { Dialog,
   DialogTitle,
   DialogTrigger,} from '@/components/ui/dialog'; // Adjust imports if needed
 import Link from 'next/link';
+import PrivateRoute from '@/components/shared/PrivateRoute';
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function Dashboard() {
@@ -47,7 +48,8 @@ export default function Dashboard() {
   if (error) return <p>Failed to load folders.</p>;
 
   return (
-    <main className="max-w-5xl mx-auto p-6">
+ <PrivateRoute>
+     <main className="max-w-5xl mx-auto p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Your Folders</h1>
 
@@ -81,16 +83,33 @@ export default function Dashboard() {
           <p>No folders yet. Create one to get started!</p>
         ) : (
           data.folders.map((folder: { _id: string; name: string }) => (
-            <Card
-              key={folder._id}
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow"
-            >
-             <Link   key={folder._id}
-  href={`/dashboard/folder/${folder._id}`}> <h2 className="text-lg font-semibold">{folder.name}</h2></Link>
-            </Card>
+           <Card
+    key={folder._id}
+    className="p-6 cursor-pointer hover:shadow-md transition-shadow flex flex-col items-center"
+  >
+    <Link href={`/dashboard/folder/${folder._id}`} className="flex flex-col items-center">
+      {/* Large Folder Icon */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-20 h-20 text-gray-500 mb-3"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+        />
+      </svg>
+      <h2 className="text-lg font-semibold text-center">{folder.name}</h2>
+    </Link>
+  </Card>
           ))
         )}
       </section>
     </main>
+ </PrivateRoute>
   );
 }

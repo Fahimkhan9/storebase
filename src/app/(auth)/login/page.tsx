@@ -15,18 +15,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center bg-muted px-4">
-      <Card className="w-full max-w-sm shadow-xl border">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <Card className="w-full max-w-md shadow-lg border border-gray-200 bg-white rounded-lg">
         <CardHeader>
-          <CardTitle className="text-center text-xl">Sign in to Storebase</CardTitle>
+          <CardTitle className="text-center text-2xl font-semibold text-gray-900">
+            Sign in to Storebase
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 py-6">
           <Button
             variant="outline"
-            className="w-full gap-2"
+            className="w-full gap-3 justify-center text-gray-700 border-gray-300 hover:bg-gray-100 hover:text-gray-900 transition"
             onClick={handleGoogleLogin}
           >
-            <LogIn className="w-4 h-4" />
+            <LogIn className="w-5 h-5" />
             Sign in with Google
           </Button>
         </CardContent>
