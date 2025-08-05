@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,11 +10,26 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { LogIn } from 'lucide-react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function LoginPage() {
+  const { user, isLoading } = useCurrentUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.replace('/dashboard'); // redirect if logged in
+    }
+  }, [user, isLoading, router]);
+
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/users/auth/google`;
   };
+
+  if (isLoading || user) {
+    // optionally show a loader or nothing while redirecting
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

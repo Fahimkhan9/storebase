@@ -131,7 +131,7 @@ export default function LandingPage() {
             Ready to take control of your media?
           </h2>
           <a
-            href="/signup"
+            href="/login"
             className="inline-block px-10 py-4 rounded-full bg-indigo-600 text-white text-lg font-semibold shadow-md shadow-indigo-700/50 hover:bg-indigo-700 transition"
             aria-label="Sign up now"
           >
