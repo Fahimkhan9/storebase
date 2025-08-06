@@ -45,9 +45,6 @@
 - Smooth loading skeletons while data is fetched
 - Beautiful landing page with feature highlights
 
-### 🔒 Role-based Access (Upcoming)
-
-- Admin panel for managing users and media
 
 ---
 
