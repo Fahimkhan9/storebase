@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 📦 Storebase
 
-First, run the development server:
+**Storebase** is a full-stack media storage application that allows users to create folders, upload images and PDFs, and manage their media efficiently. Built with modern web technologies, it includes both a powerful backend API and a beautiful responsive frontend UI.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🔐 Authentication
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Google OAuth login via Passport.js
+- Secure session management with JWT
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+### 📁 Folder Management
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Create folders to organize media
+- View folder details
+- Each folder is private to its owner
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🖼️ Media Upload & Management
 
-## Deploy on Vercel
+- Upload single or multiple files (images or PDFs)
+- View media inside folders
+- Delete individual media
+- Bulk delete support with confirmation
+- Cloud upload using ImageKit for reliability and speed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 📤 Cloud Integration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Media stored securely on **ImageKit**
+- Only URLs are saved in MongoDB for performance
+
+### 📊 Storage Limit (Upcoming)
+
+- Users get a free storage quota
+- Premium subscription unlocks more space (future plan)
+
+### 🧭 UI/UX
+
+- Fully responsive dashboard with sidebar layout
+- Grid/List view toggle for browsing media
+- Modal previews for images and PDFs
+- Smooth loading skeletons while data is fetched
+- Beautiful landing page with feature highlights
+
+### 🔒 Role-based Access (Upcoming)
+
+- Admin panel for managing users and media
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend (Next.js)
+
+- [Next.js](https://nextjs.org/) – React framework
+- [TypeScript](https://www.typescriptlang.org/) – Strong typing
+- [ShadCN/UI](https://ui.shadcn.com/) – UI components
+- [SWR](https://swr.vercel.app/) – React data fetching
+- [Axios](https://axios-http.com/) – HTTP client
+- [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) – Form validation
+
+### Backend (Express.js)
+
+- [Express](https://expressjs.com/) – Web server
+- [Mongoose](https://mongoosejs.com/) – MongoDB ODM
+- [Passport.js](https://www.passportjs.org/) – Google OAuth strategy
+- [JWT](https://jwt.io/) – Session management
+- [ImageKit](https://imagekit.io/) – Cloud media storage
+- [Multer](https://github.com/expressjs/multer) – File upload handling
+
+### DevOps & Hosting
+
+- Vercel – Frontend deployment
+- Render – Backend deployment
+- MongoDB Atlas – Cloud database
+
+---
+
