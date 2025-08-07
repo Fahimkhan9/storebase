@@ -47,7 +47,7 @@ export default function ProfilePage() {
               <p>{new Date(user.createdAt).toLocaleDateString()}</p>
             </div>
 
-            <div>
+            {/* <div>
               <h3 className="font-semibold text-gray-700">Membership Status</h3>
               {user.isPro ? (
                 <p className="text-green-600 font-semibold">Pro Member</p>
@@ -59,7 +59,7 @@ export default function ProfilePage() {
                   </Button>
                 </>
               )}
-            </div>
+            </div> */}
 
         
           </div>
