@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Loader2 } from 'lucide-react';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -42,16 +42,18 @@ export default function Navbar() {
       </Link>
 
       {/* Right: User Info + Menu */}
-      {!isLoading && (
+      {isLoading ? (
+        <div className="flex items-center gap-2">
+          <Loader2 className="animate-spin h-5 w-5 text-slate-600" />
+          <span className="text-sm font-medium text-slate-600">Loading..</span>
+        </div>
+      ) : (
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              {/* Username */}
               <span className="text-sm text-slate-800 font-medium max-w-xs truncate">
                 Welcome, {user.name?.split(' ')[0]}
               </span>
-
-              {/* Dropdown with MoreVertical icon */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
